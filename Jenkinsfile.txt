@@ -1,0 +1,16 @@
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/твій-репозиторій.git'
+            }
+        }
+        stage('Build & Run Docker') {
+            steps {
+                sh 'docker-compose down'
+                sh 'docker-compose up --build -d'
+            }
+        }
+    }
+}

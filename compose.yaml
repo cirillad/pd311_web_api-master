@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres
+    container_name: "db"
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_PASSWORD=qwerty
+      - POSTGRES_DB=pd311_web_api_2
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - db_files:/var/lib/postgresql/data
+    networks:
+      - project
+
+  api:
+    build: .
+    image: api
+    container_name: "api"
+    ports:
+      - "80:8080"
+    environment:
+      - ConnectionStrings__NpgsqlLocal=User ID=postgres;Password=qwerty;Host=db;Port=5432;Database=pd311_web_api_2;
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - api_files:/app/wwwroot
+    networks:
+      - project
+
+  react:
+    build:
+      context: /mnt/c/Users/ciri/Desktop/dashboard_pd311-main
+    image: react-client
+    container_name: "react"
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - api
+    networks:
+      - project
+
+volumes:
+  db_files:
+  api_files:
+
+networks:
+  project:
