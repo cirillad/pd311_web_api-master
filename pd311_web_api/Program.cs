@@ -59,8 +59,6 @@ builder.Services.AddValidatorsFromAssemblyContaining<LoginValidator>();
 // Add automapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-
 // Add database context
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -97,7 +95,6 @@ builder.Services.AddCors(options =>
 // JWT bearer authorization
 builder.Services.AddEndpointsApiExplorer();
 
-//builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "PD311_API", Version = "v1" });
@@ -123,7 +120,7 @@ builder.Services.AddSwaggerGen(options =>
                     Id = "Bearer"
                 }
             },
-            new []{Settings.RoleAdmin}
+            new [] { Settings.RoleAdmin }
         }
     });
 });
@@ -139,16 +136,13 @@ app.UseHttpsRedirection();
 
 app.UseCors("localhost3000");
 
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    //app.MapOpenApi();
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
+// Swagger setup (fixed!)
 app.UseSwagger();
-app.UseSwaggerUI();
-
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "PD311_API V1");
+    c.RoutePrefix = "swagger"; // дозволяє відкривати через /swagger
+});
 
 Settings.RootPath = builder.Environment.ContentRootPath;
 string rootPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
@@ -164,7 +158,7 @@ if (!Directory.Exists(imagesPath))
     Directory.CreateDirectory(imagesPath);
 }
 
-// static files
+// Static files
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(imagesPath),
